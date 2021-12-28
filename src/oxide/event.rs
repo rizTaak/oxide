@@ -55,15 +55,15 @@ pub enum EventType {
     },
 }
 
-pub struct Event<'a> {
+pub struct Event {
     catogories: EventCategory,
-    name: &'a str,
+    name: &'static str,
     handled: bool,
     data: EventType,
 }
 
-impl<'a> Event<'a> {
-    pub fn none() -> Event<'a> {
+impl Event {
+    pub fn none() -> Event {
         Event {
             catogories: EventCategory::NONE,
             name: "None",
@@ -72,7 +72,7 @@ impl<'a> Event<'a> {
         }
     }
 
-    pub fn key_pressed(key_code: KeyCode, repeat: u32) -> Event<'a> {
+    pub fn key_pressed(key_code: KeyCode, repeat: u32) -> Event {
         Event {
             catogories: EventCategory::EVENT_CATEGORY_KEYBOARD
                 | EventCategory::EVENT_CATEGORY_INPUT,
@@ -89,7 +89,7 @@ pub trait EventObserver {
 }
 
 pub struct EventDispatcher<'a> {
-    event: &'a Event<'a>,
+    event: &'a Event,
 }
 
 impl<'a> EventDispatcher<'a> {
