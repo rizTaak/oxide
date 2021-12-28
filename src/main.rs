@@ -1,5 +1,6 @@
 #![cfg_attr(debug_assertions, allow(dead_code))]
 
+mod external;
 mod oxide;
 mod sandbox;
 

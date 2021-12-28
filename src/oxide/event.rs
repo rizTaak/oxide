@@ -82,3 +82,24 @@ impl<'a> Event<'a> {
         }
     }
 }
+
+pub trait EventObserver {
+    fn notify(&self, event: &Event);
+    fn can_handle(&self, event: &Event) -> bool;
+}
+
+pub struct EventDispatcher<'a> {
+    event: &'a Event<'a>,
+}
+
+impl<'a> EventDispatcher<'a> {
+    pub fn new(event: &'a Event) -> EventDispatcher<'a> {
+        EventDispatcher { event }
+    }
+
+    pub fn dispatch<T: EventObserver>(&self, observer: &T) {
+        if observer.can_handle(self.event) {
+            observer.notify(self.event);
+        }
+    }
+}
