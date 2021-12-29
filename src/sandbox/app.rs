@@ -1,21 +1,29 @@
 use crate::oxide::{
-    app::{Application, OxideApp},
-    window::{GenericWindow, WindowProps},
+    app::{Application, OxideApp, OxideAppObserver},
+    window::{GenericWindow, Window, WindowProps},
 };
 
-pub struct SandboxApp {
-    app: OxideApp<GenericWindow>,
+pub struct SandboxApp<'a> {
+    app: OxideApp<'a, GenericWindow<'a, OxideAppObserver>>,
 }
 
-impl SandboxApp {
-    pub fn new() -> SandboxApp {
+impl<'a> SandboxApp<'a> {
+    pub fn new() -> SandboxApp<'a> {
         SandboxApp {
-            app: OxideApp::<GenericWindow>::new(WindowProps::new("Oxide Window", 1024, 720)),
+            app: OxideApp::<GenericWindow<'a, OxideAppObserver>>::new(WindowProps::new(
+                "Oxide Window",
+                1024,
+                720,
+            )),
         }
+    }
+
+    pub fn register_callback(&'a mut self) {
+        self.app.window.set_callback(&mut self.app.observer);
     }
 }
 
-impl Application for SandboxApp {
+impl<'a> Application for SandboxApp<'a> {
     fn run(&mut self) {
         self.app.run();
     }

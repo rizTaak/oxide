@@ -2,6 +2,8 @@ use glfw::{Context, Glfw, SwapInterval, WindowEvent};
 use std::sync::mpsc::Receiver;
 
 use crate::external::glad::gl;
+
+use super::event::EventObserver;
 extern crate glfw;
 
 pub struct WindowProps {
@@ -20,11 +22,11 @@ impl WindowProps {
     }
 }
 
-pub trait Window {
+pub trait Window<'a, T: EventObserver> {
     // using EventCallbackFn = std::function<void(Event&)>;
     // virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
     fn new(props: WindowProps) -> Self;
-
+    fn set_callback(&mut self, observer: &'a mut T);
     fn on_update(&mut self);
     fn width(&self) -> u32;
     fn height(&self) -> u32;
@@ -32,13 +34,14 @@ pub trait Window {
     fn is_vsync(&self) -> bool;
 }
 
-pub struct GenericWindow {
+pub struct GenericWindow<'a, T: EventObserver> {
     glfw: Glfw,
     window: glfw::Window,
     events: Receiver<(f64, WindowEvent)>,
+    callback: Option<&'a mut T>,
 }
 
-impl Window for GenericWindow {
+impl<'a, T: EventObserver> Window<'a, T> for GenericWindow<'a, T> {
     fn new(props: WindowProps) -> Self {
         let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         let (mut window, events) = glfw
@@ -58,6 +61,7 @@ impl Window for GenericWindow {
             glfw,
             window,
             events,
+            callback: None,
         };
 
         window.set_vsync(true);
@@ -76,6 +80,7 @@ impl Window for GenericWindow {
     fn height(&self) -> u32 {
         0
     }
+
     fn set_vsync(&mut self, enabled: bool) {
         if enabled {
             self.glfw.set_swap_interval(SwapInterval::Sync(1));
@@ -86,5 +91,9 @@ impl Window for GenericWindow {
 
     fn is_vsync(&self) -> bool {
         true
+    }
+
+    fn set_callback(&mut self, observer: &'a mut T) {
+        self.callback = Some(observer);
     }
 }
