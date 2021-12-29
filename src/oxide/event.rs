@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use bitflags::bitflags;
 
 type KeyCode = u32;
@@ -81,25 +83,35 @@ impl Event {
             data: EventType::KeyPressed { key_code, repeat },
         }
     }
+
+    pub fn close() -> Event {
+        Event {
+            catogories: EventCategory::EVENT_CATEGORY_APPLICATION,
+            name: "WindowClose",
+            handled: false,
+            data: EventType::WindowClose,
+        }
+    }
 }
 
 pub trait EventObserver {
-    fn notify(&mut self, event: &mut Event);
+    fn notify(&mut self, event: &Event);
     fn can_handle(&self, event: &Event) -> bool;
 }
 
 pub struct EventDispatcher<'a> {
-    event: &'a mut Event,
+    event: &'a Event,
 }
 
 impl<'a> EventDispatcher<'a> {
-    pub fn new(event: &'a mut Event) -> EventDispatcher<'a> {
+    pub fn new(event: &'a Event) -> EventDispatcher<'a> {
         EventDispatcher { event }
     }
 
-    pub fn dispatch<T: EventObserver>(&mut self, observer: &mut T) -> bool {
-        if observer.can_handle(&self.event) {
-            observer.notify(&mut self.event);
+    pub fn dispatch<T: EventObserver>(&self, observer: &RefCell<T>) -> bool {
+        let mut obs = observer.borrow_mut();
+        if obs.can_handle(&self.event) {
+            obs.notify(&self.event);
             return true;
         }
         false

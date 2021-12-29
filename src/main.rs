@@ -12,4 +12,5 @@ fn main() {
     oxide_info!("Starting Oxide");
     let mut app = sandbox::app::SandboxApp::new();
     app.run();
+    oxide_info!("Stopping Oxide");
 }

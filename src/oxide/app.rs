@@ -1,10 +1,8 @@
-use log::info;
-
 use super::event::{Event, EventObserver, EventType};
 use super::window::WindowProps;
 use crate::external::glad::gl;
 use crate::oxide::window::Window;
-use crate::oxide_info;
+use std::cell::RefCell;
 use std::rc::Rc;
 pub trait Application {
     fn run(&mut self);
@@ -15,7 +13,7 @@ pub struct OxideAppObserver {
 }
 
 impl EventObserver for OxideAppObserver {
-    fn notify(&mut self, event: &mut Event) {
+    fn notify(&mut self, event: &Event) {
         match event.data {
             EventType::WindowClose => {
                 self.running = false;
@@ -32,24 +30,24 @@ impl EventObserver for OxideAppObserver {
     }
 }
 pub struct OxideApp<T: Window<OxideAppObserver>> {
-    pub observer: Rc<OxideAppObserver>,
+    pub observer: Rc<RefCell<OxideAppObserver>>,
     pub window: T,
 }
 
 impl<'a, T: Window<OxideAppObserver>> OxideApp<T> {
     pub fn new(props: WindowProps) -> OxideApp<T> {
-        let app = OxideApp {
-            observer: Rc::new(OxideAppObserver { running: true }),
+        let mut app = OxideApp {
+            observer: Rc::new(RefCell::new(OxideAppObserver { running: true })),
             window: T::new(props),
         };
-
+        app.window.set_callback(Some(app.observer.clone()));
         app
     }
 }
 
 impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
     fn run(&mut self) {
-        while self.observer.running {
+        while self.observer.borrow().running {
             unsafe {
                 gl::ClearColor(1., 0., 1., 1.);
                 gl::Clear(gl::COLOR_BUFFER_BIT);

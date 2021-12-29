@@ -17,12 +17,6 @@ impl SandboxApp {
             )),
         }
     }
-
-    pub fn register_callback(&mut self) {
-        self.app
-            .window
-            .set_callback(Some(self.app.observer.clone()));
-    }
 }
 
 impl<'a> Application for SandboxApp {
