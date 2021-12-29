@@ -1,9 +1,9 @@
-use glfw::{Context, Glfw, SwapInterval, WindowEvent};
-use std::sync::mpsc::Receiver;
-
 use crate::external::glad::gl;
+use glfw::{Context, Glfw, SwapInterval, WindowEvent};
 
 use super::event::EventObserver;
+use crate::oxide_error;
+use std::{cell::Cell, rc::Rc, sync::mpsc::Receiver};
 extern crate glfw;
 
 pub struct WindowProps {
@@ -22,11 +22,11 @@ impl WindowProps {
     }
 }
 
-pub trait Window<'a, T: EventObserver> {
+pub trait Window<T: EventObserver> {
     // using EventCallbackFn = std::function<void(Event&)>;
     // virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
     fn new(props: WindowProps) -> Self;
-    fn set_callback(&mut self, observer: &'a mut T);
+    fn set_callback(&mut self, observer: Option<Rc<T>>);
     fn on_update(&mut self);
     fn width(&self) -> u32;
     fn height(&self) -> u32;
@@ -34,16 +34,21 @@ pub trait Window<'a, T: EventObserver> {
     fn is_vsync(&self) -> bool;
 }
 
-pub struct GenericWindow<'a, T: EventObserver> {
+pub struct GenericWindow<T: EventObserver> {
     glfw: Glfw,
     window: glfw::Window,
     events: Receiver<(f64, WindowEvent)>,
-    callback: Option<&'a mut T>,
+    callback: Option<Rc<T>>,
 }
 
-impl<'a, T: EventObserver> Window<'a, T> for GenericWindow<'a, T> {
+fn error_callback(_: glfw::Error, description: String, error_count: &Cell<usize>) {
+    oxide_error!("GLFW error {}: {}", error_count.get(), description);
+    error_count.set(error_count.get() + 1);
+}
+
+impl<'a, T: EventObserver> Window<T> for GenericWindow<T> {
     fn new(props: WindowProps) -> Self {
-        let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         let (mut window, events) = glfw
             .create_window(
                 props.width,
@@ -54,6 +59,11 @@ impl<'a, T: EventObserver> Window<'a, T> for GenericWindow<'a, T> {
             .expect("Failed to create GLFW window.");
         window.set_key_polling(true);
         window.make_current();
+
+        glfw.set_error_callback(Some(glfw::Callback {
+            f: error_callback,
+            data: Cell::new(0),
+        }));
 
         gl::load(|e| glfw.get_proc_address_raw(e) as *const std::os::raw::c_void);
 
@@ -93,7 +103,7 @@ impl<'a, T: EventObserver> Window<'a, T> for GenericWindow<'a, T> {
         true
     }
 
-    fn set_callback(&mut self, observer: &'a mut T) {
-        self.callback = Some(observer);
+    fn set_callback(&mut self, observer: Option<Rc<T>>) {
+        self.callback = observer;
     }
 }

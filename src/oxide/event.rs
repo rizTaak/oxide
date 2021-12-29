@@ -56,10 +56,10 @@ pub enum EventType {
 }
 
 pub struct Event {
-    catogories: EventCategory,
-    name: &'static str,
-    handled: bool,
-    data: EventType,
+    pub catogories: EventCategory,
+    pub name: &'static str,
+    pub handled: bool,
+    pub data: EventType,
 }
 
 impl Event {
@@ -84,22 +84,24 @@ impl Event {
 }
 
 pub trait EventObserver {
-    fn notify(&self, event: &Event);
+    fn notify(&mut self, event: &mut Event);
     fn can_handle(&self, event: &Event) -> bool;
 }
 
 pub struct EventDispatcher<'a> {
-    event: &'a Event,
+    event: &'a mut Event,
 }
 
 impl<'a> EventDispatcher<'a> {
-    pub fn new(event: &'a Event) -> EventDispatcher<'a> {
+    pub fn new(event: &'a mut Event) -> EventDispatcher<'a> {
         EventDispatcher { event }
     }
 
-    pub fn dispatch<T: EventObserver>(&self, observer: &T) {
-        if observer.can_handle(self.event) {
-            observer.notify(self.event);
+    pub fn dispatch<T: EventObserver>(&mut self, observer: &mut T) -> bool {
+        if observer.can_handle(&self.event) {
+            observer.notify(&mut self.event);
+            return true;
         }
+        false
     }
 }

@@ -1,9 +1,11 @@
-use std::marker::PhantomData;
+use log::info;
 
-use super::event::{Event, EventObserver};
+use super::event::{Event, EventObserver, EventType};
 use super::window::WindowProps;
 use crate::external::glad::gl;
 use crate::oxide::window::Window;
+use crate::oxide_info;
+use std::rc::Rc;
 pub trait Application {
     fn run(&mut self);
 }
@@ -13,30 +15,39 @@ pub struct OxideAppObserver {
 }
 
 impl EventObserver for OxideAppObserver {
-    fn notify(&self, event: &Event) {}
+    fn notify(&mut self, event: &mut Event) {
+        match event.data {
+            EventType::WindowClose => {
+                self.running = false;
+            }
+            _ => {}
+        }
+    }
 
     fn can_handle(&self, event: &Event) -> bool {
-        false
+        match event.data {
+            EventType::WindowClose => true,
+            _ => false,
+        }
     }
 }
-pub struct OxideApp<'a, T: Window<'a, OxideAppObserver>> {
-    pub observer: OxideAppObserver,
+pub struct OxideApp<T: Window<OxideAppObserver>> {
+    pub observer: Rc<OxideAppObserver>,
     pub window: T,
-    phantom: PhantomData<&'a T>,
 }
 
-impl<'a, T: Window<'a, OxideAppObserver>> OxideApp<'a, T> {
-    pub fn new(props: WindowProps) -> OxideApp<'a, T> {
+impl<'a, T: Window<OxideAppObserver>> OxideApp<T> {
+    pub fn new(props: WindowProps) -> OxideApp<T> {
         let app = OxideApp {
-            observer: OxideAppObserver { running: true },
+            observer: Rc::new(OxideAppObserver { running: true }),
             window: T::new(props),
-            phantom: PhantomData,
         };
+
         app
     }
 }
 
-impl<'a, T: Window<'a, OxideAppObserver>> Application for OxideApp<'a, T> {
+impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
     fn run(&mut self) {
         while self.observer.running {
             unsafe {
