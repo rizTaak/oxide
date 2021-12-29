@@ -1,5 +1,5 @@
-mod app;
-pub use self::app::*;
+pub mod app;
 
-mod event;
-pub use self::event::*;
+pub mod event;
+
+pub mod window;
