@@ -19,7 +19,7 @@ impl SandboxApp {
     }
 }
 
-impl<'a> Application for SandboxApp {
+impl Application for SandboxApp {
     fn run(&mut self) {
         self.app.run();
     }

@@ -64,7 +64,7 @@ impl<T: EventObserver> GenericWindow<T> {
     }
 }
 
-impl<'a, T: EventObserver> Window<T> for GenericWindow<T> {
+impl<T: EventObserver> Window<T> for GenericWindow<T> {
     fn new(props: WindowProps) -> Self {
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         let (mut window, events) = glfw

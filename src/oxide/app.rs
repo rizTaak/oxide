@@ -34,7 +34,7 @@ pub struct OxideApp<T: Window<OxideAppObserver>> {
     pub window: T,
 }
 
-impl<'a, T: Window<OxideAppObserver>> OxideApp<T> {
+impl<T: Window<OxideAppObserver>> OxideApp<T> {
     pub fn new(props: WindowProps) -> OxideApp<T> {
         let mut app = OxideApp {
             observer: Rc::new(RefCell::new(OxideAppObserver { running: true })),
@@ -45,7 +45,7 @@ impl<'a, T: Window<OxideAppObserver>> OxideApp<T> {
     }
 }
 
-impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
+impl<T: Window<OxideAppObserver>> Application for OxideApp<T> {
     fn run(&mut self) {
         while self.observer.borrow().running {
             unsafe {
