@@ -7,7 +7,7 @@ pub trait Layer {
     fn on_detach(&mut self);
     fn on_update(&mut self);
     fn on_event(&mut self, event: &Event);
-    fn name(&self) -> str;
+    fn name(&self) -> &str;
 }
 
 pub type LayerCollection = VecDeque<Box<dyn Layer>>;
@@ -33,7 +33,7 @@ impl LayerStack {
         self.stack.pop_back().unwrap()
     }
 
-    pub fn layers(&self) -> &LayerCollection {
-        &self.stack
+    pub fn layers(&mut self) -> &mut LayerCollection {
+        &mut self.stack
     }
 }

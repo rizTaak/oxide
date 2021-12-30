@@ -1,5 +1,5 @@
 use super::event::{Event, EventObserver, EventType};
-use super::layer::{LayerCollection, LayerStack};
+use super::layer::{Layer, LayerCollection, LayerStack};
 use super::window::WindowProps;
 use crate::external::glad::gl;
 use crate::oxide::window::Window;
@@ -7,10 +7,13 @@ use std::cell::RefCell;
 use std::rc::Rc;
 pub trait Application {
     fn run(&mut self);
+    fn push_layer(&mut self, layer: Box<dyn Layer>);
+    fn push_overlay(&mut self, layer: Box<dyn Layer>);
 }
 
 pub struct OxideAppObserver {
     running: bool,
+    layers: LayerStack,
 }
 
 impl EventObserver for OxideAppObserver {
@@ -21,29 +24,31 @@ impl EventObserver for OxideAppObserver {
             }
             _ => {}
         }
+
+        for layer in self.layers.layers() {
+            layer.on_event(&event);
+        }
     }
 
-    fn can_handle(&self, event: &Event) -> bool {
-        match event.data {
-            EventType::WindowClose => true,
-            _ => false,
-        }
+    fn can_handle(&self, _: &Event) -> bool {
+        true
     }
 }
 pub struct OxideApp<T: Window<OxideAppObserver>> {
     pub observer: Rc<RefCell<OxideAppObserver>>,
     pub window: T,
-    pub layers: LayerStack,
 }
 
 impl<T: Window<OxideAppObserver>> OxideApp<T> {
     pub fn new(props: WindowProps) -> OxideApp<T> {
         let mut app = OxideApp {
-            observer: Rc::new(RefCell::new(OxideAppObserver { running: true })),
+            observer: Rc::new(RefCell::new(OxideAppObserver {
+                running: true,
+                layers: LayerStack {
+                    stack: LayerCollection::new(),
+                },
+            })),
             window: T::new(props),
-            layers: LayerStack {
-                stack: LayerCollection::new(),
-            },
         };
         app.window.set_callback(Some(app.observer.clone()));
         app
@@ -57,7 +62,18 @@ impl<T: Window<OxideAppObserver>> Application for OxideApp<T> {
                 gl::ClearColor(1., 0., 1., 1.);
                 gl::Clear(gl::COLOR_BUFFER_BIT);
             }
+            for layer in self.observer.borrow_mut().layers.layers() {
+                layer.on_update();
+            }
             self.window.on_update();
         }
+    }
+
+    fn push_layer(&mut self, layer: Box<dyn Layer>) {
+        self.observer.borrow_mut().layers.push_layer(layer);
+    }
+
+    fn push_overlay(&mut self, layer: Box<dyn Layer>) {
+        self.observer.borrow_mut().layers.push_overlay(layer);
     }
 }

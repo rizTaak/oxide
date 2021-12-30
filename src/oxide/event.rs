@@ -21,6 +21,8 @@ bitflags! {
         const EVENT_CATEGORY_MOUSE_BUTTON = bit!(4);
     }
 }
+
+#[derive(Debug)]
 pub enum EventType {
     None,
     WindowClose,
@@ -57,6 +59,7 @@ pub enum EventType {
     },
 }
 
+#[derive(Debug)]
 pub struct Event {
     pub catogories: EventCategory,
     pub name: &'static str,
