@@ -1,6 +1,6 @@
 use crate::oxide::{
     app::{Application, OxideApp, OxideAppObserver},
-    window::{GenericWindow, Window, WindowProps},
+    window::{GenericWindow, WindowProps},
 };
 
 pub struct SandboxApp {

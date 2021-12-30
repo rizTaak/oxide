@@ -1,4 +1,5 @@
 use super::event::{Event, EventObserver, EventType};
+use super::layer::{LayerCollection, LayerStack};
 use super::window::WindowProps;
 use crate::external::glad::gl;
 use crate::oxide::window::Window;
@@ -32,6 +33,7 @@ impl EventObserver for OxideAppObserver {
 pub struct OxideApp<T: Window<OxideAppObserver>> {
     pub observer: Rc<RefCell<OxideAppObserver>>,
     pub window: T,
+    pub layers: LayerStack,
 }
 
 impl<T: Window<OxideAppObserver>> OxideApp<T> {
@@ -39,6 +41,9 @@ impl<T: Window<OxideAppObserver>> OxideApp<T> {
         let mut app = OxideApp {
             observer: Rc::new(RefCell::new(OxideAppObserver { running: true })),
             window: T::new(props),
+            layers: LayerStack {
+                stack: LayerCollection::new(),
+            },
         };
         app.window.set_callback(Some(app.observer.clone()));
         app
