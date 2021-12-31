@@ -1,9 +1,9 @@
-use std::{ffi::c_void, time::Instant};
+use std::time::Instant;
 
 use glfw::{ffi, with_c_str};
 use imgui::{BackendFlags, Context};
 
-use super::layer::Layer;
+use super::{app::Application, layer::Layer};
 use crate::oxide_info;
 use imgui_opengl_renderer::Renderer;
 pub struct ImGuiLayer {
@@ -45,7 +45,7 @@ impl Layer for ImGuiLayer {
         oxide_info!("{}: on_detach", self.name());
     }
 
-    fn on_update(&mut self) {
+    fn on_update(&mut self, _: &dyn Application) {
         oxide_info!("{}: on_update", self.name());
 
         let io = self.imgui.io_mut();
@@ -56,29 +56,13 @@ impl Layer for ImGuiLayer {
         self.last_frame = now;
         io.delta_time = delta_s;
 
-        let window_size = (1024, 720); //window.get_size();
+        let window_size = (1536, 864);
         io.display_size = [window_size.0 as f32, window_size.1 as f32];
 
         let ui = self.imgui.frame();
         let mut opened = true;
         ui.show_demo_window(&mut opened);
         self.renderer.render(ui);
-        /*
-        Application& app = Application::Get();
-        io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
-
-        float time = (float)glfwGetTime();
-        io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);
-        m_Time = time;
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
-
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); */
     }
 
     fn on_event(&mut self, event: &super::event::Event) {

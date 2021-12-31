@@ -1,3 +1,4 @@
+use crate::oxide::app::Application;
 use crate::oxide::layer::Layer;
 use crate::oxide_info;
 pub struct ExampleLayer {}
@@ -7,7 +8,7 @@ impl Layer for ExampleLayer {
 
     fn on_detach(&mut self) {}
 
-    fn on_update(&mut self) {
+    fn on_update(&mut self, _: &dyn Application) {
         // oxide_info!("ExampleLayer: on_update");
     }
 

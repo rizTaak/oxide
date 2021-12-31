@@ -43,6 +43,7 @@ pub struct GenericWindow<T: EventObserver> {
     window: glfw::Window,
     events: Receiver<(f64, WindowEvent)>,
     callback: Option<Rc<RefCell<T>>>,
+    props: WindowProps,
 }
 
 fn error_callback(_: glfw::Error, description: String, error_count: &Cell<usize>) {
@@ -93,6 +94,7 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
             window,
             events,
             callback: None,
+            props,
         };
 
         window.set_vsync(true);
@@ -108,11 +110,11 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
     }
 
     fn width(&self) -> u32 {
-        0
+        self.props.width
     }
 
     fn height(&self) -> u32 {
-        0
+        self.props.height
     }
 
     fn set_vsync(&mut self, enabled: bool) {

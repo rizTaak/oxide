@@ -15,8 +15,7 @@ impl SandboxApp {
         let mut sandbox = SandboxApp {
             app: OxideApp::<GenericWindow<OxideAppObserver>>::new(WindowProps::new(
                 "Oxide Window",
-                1024,
-                720,
+                1536, 864
             )),
         };
         sandbox.push_layer(Box::new(ImGuiLayer::new()));
