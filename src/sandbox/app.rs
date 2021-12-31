@@ -1,5 +1,6 @@
 use crate::oxide::{
     app::{Application, OxideApp, OxideAppObserver},
+    imgui::ImGuiLayer,
     window::{GenericWindow, WindowProps},
 };
 
@@ -18,6 +19,7 @@ impl SandboxApp {
                 720,
             )),
         };
+        sandbox.push_layer(Box::new(ImGuiLayer::new()));
         sandbox.push_layer(Box::new(ExampleLayer {}));
         sandbox
     }

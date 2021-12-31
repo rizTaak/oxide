@@ -34,6 +34,8 @@ pub trait Window<T: EventObserver> {
     fn height(&self) -> u32;
     fn set_vsync(&mut self, enabled: bool);
     fn is_vsync(&self) -> bool;
+    // hack
+    //fn glfw_window(&mut self) -> &mut glfw::Window;
 }
 
 pub struct GenericWindow<T: EventObserver> {
@@ -128,4 +130,8 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
     fn set_callback(&mut self, observer: Option<Rc<RefCell<T>>>) {
         self.callback = observer;
     }
+
+    /*fn glfw_window(&mut self) -> &mut glfw::Window {
+        &mut self.window
+    }*/
 }
