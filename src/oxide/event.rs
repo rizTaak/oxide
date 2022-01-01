@@ -101,7 +101,28 @@ impl Event {
             catogories: EventCategory::EVENT_CATEGORY_MOUSE,
             name: "MouseMove",
             handled: false,
-            data: EventType::MouseMoved { x_mouse: x as u32, y_mouse: y as u32}
+            data: EventType::MouseMoved {
+                x_mouse: x as u32,
+                y_mouse: y as u32,
+            },
+        }
+    }
+
+    pub fn mouse_button_pressed(x: i32) -> Event {
+        Event {
+            catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON,
+            name: "MouseButtonPressed",
+            handled: false,
+            data: EventType::MouseButtonPressed { button: x as u32 },
+        }
+    }
+
+    pub fn mouse_button_released(x: i32) -> Event {
+        Event {
+            catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON,
+            name: "MouseButtonReleased",
+            handled: false,
+            data: EventType::MouseButtonReleased { button: x as u32 },
         }
     }
 }

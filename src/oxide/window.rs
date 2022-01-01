@@ -1,5 +1,5 @@
-use crate::external::glad::gl;
-use glfw::{Context, Glfw, SwapInterval, WindowEvent};
+extern crate gl;
+use glfw::{Action, Context, Glfw, SwapInterval, WindowEvent};
 
 use super::event::{Event, EventDispatcher, EventObserver};
 use crate::oxide_error;
@@ -34,10 +34,7 @@ pub trait Window<T: EventObserver> {
     fn height(&self) -> u32;
     fn set_vsync(&mut self, enabled: bool);
     fn is_vsync(&self) -> bool;
-    // fn close(self);
     fn should_close(&self) -> bool;
-    // hack
-    //fn glfw_window(&mut self) -> &mut glfw::Window;
 }
 
 pub struct GenericWindow<T: EventObserver> {
@@ -61,13 +58,24 @@ impl<T: EventObserver> GenericWindow<T> {
                     let evt = Event::close();
                     let dispatcher = EventDispatcher::new(&evt);
                     dispatcher.dispatch(observer);
-                    // self.window.close();
                 }
                 WindowEvent::CursorPos(x, y) => {
                     let evt = Event::mouse_move(*x, *y);
                     let dispatcher = EventDispatcher::new(&evt);
                     dispatcher.dispatch(observer);
                 }
+                WindowEvent::MouseButton(b, a, _) => match a {
+                    Action::Repeat | Action::Press => {
+                        let evt = Event::mouse_button_pressed(*b as i32);
+                        let dispatcher = EventDispatcher::new(&evt);
+                        dispatcher.dispatch(observer);
+                    }
+                    Action::Release => {
+                        let evt = Event::mouse_button_released(*b as i32);
+                        let dispatcher = EventDispatcher::new(&evt);
+                        dispatcher.dispatch(observer);
+                    }
+                },
                 _ => {}
             },
             _ => {}
@@ -96,9 +104,9 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
             data: Cell::new(0),
         }));
 
-        gl::load(|symbol| window.get_proc_address(symbol) as *const _);
+        gl::load_with(|s| window.get_proc_address(s) as *const _);
 
-        let mut window = GenericWindow {
+        let window = GenericWindow {
             glfw,
             window,
             events,
@@ -106,7 +114,7 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
             props,
         };
 
-        window.set_vsync(true);
+        //window.set_vsync(true);
         window
     }
 
@@ -143,15 +151,7 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
         self.callback = observer;
     }
 
-    /*fn close(self) {
-        self.window.close();
-    }*/
-
     fn should_close(&self) -> bool {
         self.window.should_close()
     }
-
-    /*fn glfw_window(&mut self) -> &mut glfw::Window {
-        &mut self.window
-    }*/
 }

@@ -1,7 +1,7 @@
 use super::event::{Event, EventObserver, EventType};
 use super::layer::{Layer, LayerCollection, LayerStack};
 use super::window::WindowProps;
-use crate::external::glad::gl;
+extern crate gl;
 use crate::oxide::window::Window;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -9,6 +9,7 @@ pub trait Application {
     fn run(&mut self);
     fn push_layer(&mut self, layer: Box<dyn Layer>);
     fn push_overlay(&mut self, layer: Box<dyn Layer>);
+    fn close(&mut self);
 }
 
 pub struct OxideAppObserver {
@@ -70,6 +71,7 @@ impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
     }
 
     fn push_layer(&mut self, layer: Box<dyn Layer>) {
+        //layer.as_mut().on_attach();
         self.observer.borrow_mut().layers.push_layer(layer);
     }
 
@@ -77,8 +79,8 @@ impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
         self.observer.borrow_mut().layers.push_overlay(layer);
     }
 
-    /*
-    fn close(self) {
-        self.window.close()
-    }*/
+    fn close(&mut self) {
+        self.observer.borrow_mut().layers.layers().clear();
+        //self.window.close();
+    }
 }

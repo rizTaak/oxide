@@ -1,42 +1,45 @@
-use std::time::Instant;
+use std::{
+    ffi::{c_void, CStr},
+    time::Instant,
+};
 
-use glfw::{ffi, with_c_str};
+use glfw::ffi::GLFWwindow;
 use imgui::{BackendFlags, Context, Key};
 
 use super::{app::Application, layer::Layer};
-use crate::{oxide::event::EventType, oxide_info};
-use imgui_opengl_renderer::Renderer;
+use crate::{external::gl_renderer::renderer::Renderer, oxide::event::EventType, oxide_info};
 pub struct ImGuiLayer {
     imgui: imgui::Context,
     renderer: Renderer,
     last_frame: Instant,
 }
 
-impl ImGuiLayer {
-    pub fn new() -> ImGuiLayer {
-        let mut imgui = Context::create();
-        let renderer = Renderer::new(&mut imgui, |s| {
-            with_c_str(s, |procname| unsafe { ffi::glfwGetProcAddress(procname) })
-        });
+struct GlfwClipboardBackend(*mut c_void);
 
-        /*
+impl imgui::ClipboardBackend for GlfwClipboardBackend {
+    fn get(&mut self) -> Option<imgui::ImString> {
+        let char_ptr = unsafe { glfw::ffi::glfwGetClipboardString(self.0 as *mut GLFWwindow) };
+        let c_str = unsafe { CStr::from_ptr(char_ptr) };
+        Some(imgui::ImString::new(c_str.to_str().unwrap()))
+    }
+
+    fn set(&mut self, value: &imgui::ImStr) {
         unsafe {
-            let window_ptr = glfw::ffi::glfwGetCurrentContext() as *mut c_void;
-            imgui.set_clipboard_backend(Box::new(GlfwClipboardBackend(window_ptr)));
-        }*/
-
-        ImGuiLayer {
-            imgui,
-            last_frame: Instant::now(),
-            renderer,
-        }
+            glfw::ffi::glfwSetClipboardString(self.0 as *mut GLFWwindow, value.as_ptr());
+        };
     }
 }
 
-impl Layer for ImGuiLayer {
-    fn on_attach(&mut self) {
-        let io = self.imgui.io_mut();
+impl ImGuiLayer {
+    pub fn new() -> ImGuiLayer {
+        let mut imgui = Context::create();
 
+        unsafe {
+            let window_ptr = glfw::ffi::glfwGetCurrentContext() as *mut c_void;
+            imgui.set_clipboard_backend(Box::new(GlfwClipboardBackend(window_ptr)));
+        }
+
+        let io = imgui.io_mut();
         io.backend_flags |= BackendFlags::HAS_MOUSE_CURSORS;
         io.backend_flags |= BackendFlags::HAS_SET_MOUSE_POS;
 
@@ -61,6 +64,25 @@ impl Layer for ImGuiLayer {
         io.key_map[Key::X as usize] = glfw::Key::X as u32;
         io.key_map[Key::Y as usize] = glfw::Key::Y as u32;
         io.key_map[Key::Z as usize] = glfw::Key::Z as u32;
+        let renderer = Renderer::new(&mut imgui);
+
+        /*
+        unsafe {
+            let window_ptr = glfw::ffi::glfwGetCurrentContext() as *mut c_void;
+            imgui.set_clipboard_backend(Box::new(GlfwClipboardBackend(window_ptr)));
+        }*/
+
+        ImGuiLayer {
+            imgui,
+            last_frame: Instant::now(),
+            renderer,
+        }
+    }
+}
+
+impl Layer for ImGuiLayer {
+    fn on_attach(&mut self) {
+        oxide_info!("{}: on_attach", self.name());
 
         // theme ?
     }
@@ -95,6 +117,14 @@ impl Layer for ImGuiLayer {
             EventType::MouseMoved { x_mouse, y_mouse } => {
                 let io = self.imgui.io_mut();
                 io.mouse_pos = [x_mouse as f32, y_mouse as f32]
+            }
+            EventType::MouseButtonPressed { button: _ } => {
+                let io = self.imgui.io_mut();
+                io.mouse_down = [true, false, false, false, false];
+            }
+            EventType::MouseButtonReleased { button: _ } => {
+                let io = self.imgui.io_mut();
+                io.mouse_down = [false, false, false, false, false];
             }
             EventType::WindowClose => {
                 //self.imgui.io_mut().

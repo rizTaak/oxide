@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use super::{event::Event, app::Application};
+use super::{app::Application, event::Event};
 
 pub trait Layer {
     fn on_attach(&mut self);
@@ -18,6 +18,8 @@ pub struct LayerStack {
 
 impl LayerStack {
     pub fn push_layer(&mut self, layer: Box<dyn Layer>) {
+        let mut layer = layer;
+        layer.on_attach();
         self.stack.push_front(layer);
     }
 
@@ -26,6 +28,8 @@ impl LayerStack {
     }
 
     pub fn push_overlay(&mut self, layer: Box<dyn Layer>) {
+        let mut layer = layer;
+        layer.on_attach();
         self.stack.push_back(layer);
     }
 

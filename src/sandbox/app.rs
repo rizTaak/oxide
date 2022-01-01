@@ -37,4 +37,8 @@ impl Application for SandboxApp {
     fn push_overlay(&mut self, layer: Box<dyn crate::oxide::layer::Layer>) {
         self.app.push_overlay(layer);
     }
+
+    fn close(&mut self) {
+        self.app.close();
+    }
 }
