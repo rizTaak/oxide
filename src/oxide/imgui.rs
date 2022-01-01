@@ -12,6 +12,7 @@ pub struct ImGuiLayer {
     imgui: imgui::Context,
     renderer: Renderer,
     last_frame: Instant,
+    mouse_buttons: [bool; 5],
 }
 
 struct GlfwClipboardBackend(*mut c_void);
@@ -76,6 +77,7 @@ impl ImGuiLayer {
             imgui,
             last_frame: Instant::now(),
             renderer,
+            mouse_buttons: [false, false, false, false, false],
         }
     }
 }
@@ -83,8 +85,6 @@ impl ImGuiLayer {
 impl Layer for ImGuiLayer {
     fn on_attach(&mut self) {
         oxide_info!("{}: on_attach", self.name());
-
-        // theme ?
     }
 
     fn on_detach(&mut self) {
@@ -92,8 +92,6 @@ impl Layer for ImGuiLayer {
     }
 
     fn on_update(&mut self, _: &dyn Application) {
-        // oxide_info!("{}: on_update", self.name());
-
         let io = self.imgui.io_mut();
 
         let now = Instant::now();
@@ -118,17 +116,17 @@ impl Layer for ImGuiLayer {
                 let io = self.imgui.io_mut();
                 io.mouse_pos = [x_mouse as f32, y_mouse as f32]
             }
-            EventType::MouseButtonPressed { button: _ } => {
+            EventType::MouseButtonPressed { button } => {
                 let io = self.imgui.io_mut();
-                io.mouse_down = [true, false, false, false, false];
+                self.mouse_buttons[button as usize] = true;
+                io.mouse_down = self.mouse_buttons;
             }
-            EventType::MouseButtonReleased { button: _ } => {
+            EventType::MouseButtonReleased { button } => {
                 let io = self.imgui.io_mut();
-                io.mouse_down = [false, false, false, false, false];
+                self.mouse_buttons[button as usize] = false;
+                io.mouse_down = self.mouse_buttons;
             }
-            EventType::WindowClose => {
-                //self.imgui.io_mut().
-            }
+            EventType::WindowClose => {}
             _ => {}
         }
     }

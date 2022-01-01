@@ -4,8 +4,6 @@ use crate::oxide::{
     window::{GenericWindow, WindowProps},
 };
 
-use super::example_layer::ExampleLayer;
-
 pub struct SandboxApp {
     app: OxideApp<GenericWindow<OxideAppObserver>>,
 }
@@ -20,7 +18,6 @@ impl SandboxApp {
             )),
         };
         sandbox.push_layer(Box::new(ImGuiLayer::new()));
-        sandbox.push_layer(Box::new(ExampleLayer {}));
         sandbox
     }
 }

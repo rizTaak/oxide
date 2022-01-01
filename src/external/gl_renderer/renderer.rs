@@ -23,8 +23,6 @@ struct Locs {
 
 impl Renderer {
     pub fn new(imgui: &mut Context) -> Self {
-        //gl::load(load_fn);
-
         unsafe {
             #[cfg(target_os = "macos")]
             let glsl_version = b"#version 150\n\0";
