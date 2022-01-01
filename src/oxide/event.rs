@@ -95,6 +95,15 @@ impl Event {
             data: EventType::WindowClose,
         }
     }
+
+    pub fn mouse_move(x: f64, y: f64) -> Event {
+        Event {
+            catogories: EventCategory::EVENT_CATEGORY_MOUSE,
+            name: "MouseMove",
+            handled: false,
+            data: EventType::MouseMoved { x_mouse: x as u32, y_mouse: y as u32}
+        }
+    }
 }
 
 pub trait EventObserver {

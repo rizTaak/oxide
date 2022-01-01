@@ -34,13 +34,15 @@ pub trait Window<T: EventObserver> {
     fn height(&self) -> u32;
     fn set_vsync(&mut self, enabled: bool);
     fn is_vsync(&self) -> bool;
+    // fn close(self);
+    fn should_close(&self) -> bool;
     // hack
     //fn glfw_window(&mut self) -> &mut glfw::Window;
 }
 
 pub struct GenericWindow<T: EventObserver> {
     glfw: Glfw,
-    window: glfw::Window,
+    pub window: glfw::Window,
     events: Receiver<(f64, WindowEvent)>,
     callback: Option<Rc<RefCell<T>>>,
     props: WindowProps,
@@ -59,6 +61,12 @@ impl<T: EventObserver> GenericWindow<T> {
                     let evt = Event::close();
                     let dispatcher = EventDispatcher::new(&evt);
                     dispatcher.dispatch(observer);
+                    // self.window.close();
+                }
+                WindowEvent::CursorPos(x, y) => {
+                    let evt = Event::mouse_move(*x, *y);
+                    let dispatcher = EventDispatcher::new(&evt);
+                    dispatcher.dispatch(observer);
                 }
                 _ => {}
             },
@@ -70,6 +78,8 @@ impl<T: EventObserver> GenericWindow<T> {
 impl<T: EventObserver> Window<T> for GenericWindow<T> {
     fn new(props: WindowProps) -> Self {
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+        glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
+
         let (mut window, events) = glfw
             .create_window(
                 props.width,
@@ -79,15 +89,14 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
             )
             .expect("Failed to create GLFW window.");
         window.make_current();
+        window.set_all_polling(true);
 
         glfw.set_error_callback(Some(glfw::Callback {
             f: error_callback,
             data: Cell::new(0),
         }));
 
-        window.set_close_polling(true);
-
-        gl::load(|e| glfw.get_proc_address_raw(e) as *const std::os::raw::c_void);
+        gl::load(|symbol| window.get_proc_address(symbol) as *const _);
 
         let mut window = GenericWindow {
             glfw,
@@ -102,11 +111,12 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
     }
 
     fn on_update(&mut self) {
+        self.window.swap_buffers();
+
         self.glfw.poll_events();
         for (_, event) in glfw::flush_messages(&self.events) {
             self.handle_window_event(&event);
         }
-        self.window.swap_buffers();
     }
 
     fn width(&self) -> u32 {
@@ -131,6 +141,14 @@ impl<T: EventObserver> Window<T> for GenericWindow<T> {
 
     fn set_callback(&mut self, observer: Option<Rc<RefCell<T>>>) {
         self.callback = observer;
+    }
+
+    /*fn close(self) {
+        self.window.close();
+    }*/
+
+    fn should_close(&self) -> bool {
+        self.window.should_close()
     }
 
     /*fn glfw_window(&mut self) -> &mut glfw::Window {

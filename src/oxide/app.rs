@@ -9,7 +9,6 @@ pub trait Application {
     fn run(&mut self);
     fn push_layer(&mut self, layer: Box<dyn Layer>);
     fn push_overlay(&mut self, layer: Box<dyn Layer>);
-    // fn window() -> &'a dyn Window<T>;
 }
 
 pub struct OxideAppObserver {
@@ -58,7 +57,7 @@ impl<T: Window<OxideAppObserver>> OxideApp<T> {
 
 impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
     fn run(&mut self) {
-        while self.observer.borrow().running {
+        while !self.window.should_close() {
             unsafe {
                 gl::ClearColor(1., 0., 1., 1.);
                 gl::Clear(gl::COLOR_BUFFER_BIT);
@@ -77,4 +76,9 @@ impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
     fn push_overlay(&mut self, layer: Box<dyn Layer>) {
         self.observer.borrow_mut().layers.push_overlay(layer);
     }
+
+    /*
+    fn close(self) {
+        self.window.close()
+    }*/
 }
