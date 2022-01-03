@@ -109,7 +109,7 @@ impl Layer for ImGuiLayer {
         self.renderer.render(ui);
     }
 
-    fn on_event(&mut self, event: &super::event::Event) {
+    fn on_event(&mut self, event: &super::event::Event) -> bool {
         oxide_info!("{}: {:?}", self.name(), event);
         match event.data {
             EventType::MouseMoved { x_mouse, y_mouse } => {
@@ -126,9 +126,37 @@ impl Layer for ImGuiLayer {
                 self.mouse_buttons[button as usize] = false;
                 io.mouse_down = self.mouse_buttons;
             }
+            EventType::MouseScrolled { x_offset, y_offset } => {
+                let io = self.imgui.io_mut();
+                io.mouse_wheel_h += x_offset as f32;
+                io.mouse_wheel += y_offset as f32;
+            }
+            EventType::KeyPressed { key_code } => {
+                let io = self.imgui.io_mut();
+                io.key_ctrl = io.keys_down[glfw::Key::LeftControl as usize]
+                    || io.keys_down[glfw::Key::RightControl as usize];
+                io.key_shift = io.keys_down[glfw::Key::LeftShift as usize]
+                    || io.keys_down[glfw::Key::RightShift as usize];
+                io.key_alt = io.keys_down[glfw::Key::LeftAlt as usize]
+                    || io.keys_down[glfw::Key::RightAlt as usize];
+                io.key_super = io.keys_down[glfw::Key::LeftSuper as usize]
+                    || io.keys_down[glfw::Key::RightSuper as usize];
+                io.keys_down[key_code as usize] = true;
+            }
+            EventType::KeyReleased { key_code } => {
+                let io = self.imgui.io_mut();
+                io.keys_down[key_code as usize] = false;
+            }
+            EventType::KeyTyped { key_code } => {
+                if key_code > 0 && key_code < 0x10000 {
+                    let io = self.imgui.io_mut();
+                    io.add_input_character(key_code as u8 as char);
+                }
+            }
             EventType::WindowClose => {}
             _ => {}
         }
+        false
     }
 
     fn name(&self) -> &str {

@@ -2,8 +2,8 @@ use std::cell::RefCell;
 
 use bitflags::bitflags;
 
-type KeyCode = u32;
-type EventData = u32;
+type KeyCode = i32;
+type EventData = f64;
 
 macro_rules! bit {
     ($b:expr) => {{
@@ -38,16 +38,18 @@ pub enum EventType {
     AppRender,
     KeyPressed {
         key_code: KeyCode,
-        repeat: EventData,
     },
     KeyReleased {
         key_code: KeyCode,
     },
+    KeyTyped {
+        key_code: KeyCode,
+    },
     MouseButtonPressed {
-        button: EventData,
+        button: i32,
     },
     MouseButtonReleased {
-        button: EventData,
+        button: i32,
     },
     MouseMoved {
         x_mouse: EventData,
@@ -77,13 +79,33 @@ impl Event {
         }
     }
 
-    pub fn key_pressed(key_code: KeyCode, repeat: u32) -> Event {
+    pub fn key_pressed(key_code: KeyCode) -> Event {
         Event {
             catogories: EventCategory::EVENT_CATEGORY_KEYBOARD
                 | EventCategory::EVENT_CATEGORY_INPUT,
             name: "KeyPressed",
             handled: false,
-            data: EventType::KeyPressed { key_code, repeat },
+            data: EventType::KeyPressed { key_code },
+        }
+    }
+
+    pub fn key_release(key_code: KeyCode) -> Event {
+        Event {
+            catogories: EventCategory::EVENT_CATEGORY_KEYBOARD
+                | EventCategory::EVENT_CATEGORY_INPUT,
+            name: "KeyReleased",
+            handled: false,
+            data: EventType::KeyReleased { key_code },
+        }
+    }
+
+    pub fn key_typed(key_code: KeyCode) -> Event {
+        Event {
+            catogories: EventCategory::EVENT_CATEGORY_KEYBOARD
+                | EventCategory::EVENT_CATEGORY_INPUT,
+            name: "KeyTyped",
+            handled: false,
+            data: EventType::KeyTyped { key_code },
         }
     }
 
@@ -98,31 +120,46 @@ impl Event {
 
     pub fn mouse_move(x: f64, y: f64) -> Event {
         Event {
-            catogories: EventCategory::EVENT_CATEGORY_MOUSE,
+            catogories: EventCategory::EVENT_CATEGORY_MOUSE | EventCategory::EVENT_CATEGORY_INPUT,
             name: "MouseMove",
             handled: false,
             data: EventType::MouseMoved {
-                x_mouse: x as u32,
-                y_mouse: y as u32,
+                x_mouse: x,
+                y_mouse: y,
             },
         }
     }
 
     pub fn mouse_button_pressed(x: i32) -> Event {
         Event {
-            catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON,
+            catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON
+                | EventCategory::EVENT_CATEGORY_INPUT,
             name: "MouseButtonPressed",
             handled: false,
-            data: EventType::MouseButtonPressed { button: x as u32 },
+            data: EventType::MouseButtonPressed { button: x },
         }
     }
 
     pub fn mouse_button_released(x: i32) -> Event {
         Event {
-            catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON,
+            catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON
+                | EventCategory::EVENT_CATEGORY_INPUT,
             name: "MouseButtonReleased",
             handled: false,
-            data: EventType::MouseButtonReleased { button: x as u32 },
+            data: EventType::MouseButtonReleased { button: x },
+        }
+    }
+
+    pub fn mouse_scrolled(x: f64, y: f64) -> Event {
+        Event {
+            catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON
+                | EventCategory::EVENT_CATEGORY_INPUT,
+            name: "MouseScroll",
+            handled: false,
+            data: EventType::MouseScrolled {
+                x_offset: x,
+                y_offset: y,
+            },
         }
     }
 }

@@ -76,6 +76,28 @@ impl<T: EventObserver> GenericWindow<T> {
                         dispatcher.dispatch(observer);
                     }
                 },
+                WindowEvent::Scroll(x, y) => {
+                    let evt = Event::mouse_scrolled(*x, *y);
+                    let dispatcher = EventDispatcher::new(&evt);
+                    dispatcher.dispatch(observer);
+                }
+                WindowEvent::Char(c) => {
+                    let evt = Event::key_typed(*c as i32);
+                    let dispatcher = EventDispatcher::new(&evt);
+                    dispatcher.dispatch(observer);
+                }
+                WindowEvent::Key(key, _, a, _) => match a {
+                    Action::Repeat | Action::Press => {
+                        let evt = Event::key_pressed(*key as i32);
+                        let dispatcher = EventDispatcher::new(&evt);
+                        dispatcher.dispatch(observer);
+                    }
+                    Action::Release => {
+                        let evt = Event::key_release(*key as i32);
+                        let dispatcher = EventDispatcher::new(&evt);
+                        dispatcher.dispatch(observer);
+                    }
+                },
                 _ => {}
             },
             _ => {}

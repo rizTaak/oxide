@@ -71,7 +71,6 @@ impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
     }
 
     fn push_layer(&mut self, layer: Box<dyn Layer>) {
-        //layer.as_mut().on_attach();
         self.observer.borrow_mut().layers.push_layer(layer);
     }
 
@@ -81,6 +80,5 @@ impl<'a, T: Window<OxideAppObserver>> Application for OxideApp<T> {
 
     fn close(&mut self) {
         self.observer.borrow_mut().layers.layers().clear();
-        //self.window.close();
     }
 }

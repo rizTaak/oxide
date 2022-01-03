@@ -6,7 +6,7 @@ pub trait Layer {
     fn on_attach(&mut self);
     fn on_detach(&mut self);
     fn on_update(&mut self, app: &dyn Application);
-    fn on_event(&mut self, event: &Event);
+    fn on_event(&mut self, event: &Event) -> bool;
     fn name(&self) -> &str;
 }
 
