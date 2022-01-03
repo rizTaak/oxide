@@ -4,7 +4,7 @@ use std::{
 };
 
 use glfw::ffi::GLFWwindow;
-use imgui::{BackendFlags, Context, Key};
+use imgui::{BackendFlags, Context, FontId, FontSource, Key};
 
 use super::{app::Application, layer::Layer};
 use crate::{external::gl_renderer::renderer::Renderer, oxide::event::EventType, oxide_info};
@@ -13,6 +13,7 @@ pub struct ImGuiLayer {
     renderer: Renderer,
     last_frame: Instant,
     mouse_buttons: [bool; 5],
+    font: FontId,
 }
 
 struct GlfwClipboardBackend(*mut c_void);
@@ -34,6 +35,12 @@ impl imgui::ClipboardBackend for GlfwClipboardBackend {
 impl ImGuiLayer {
     pub fn new() -> ImGuiLayer {
         let mut imgui = Context::create();
+
+        let my_font = imgui.fonts().add_font(&[FontSource::TtfData {
+            data: include_bytes!("iosevka-medium.ttf"),
+            size_pixels: 16.0,
+            config: None,
+        }]);
 
         unsafe {
             let window_ptr = glfw::ffi::glfwGetCurrentContext() as *mut c_void;
@@ -78,6 +85,7 @@ impl ImGuiLayer {
             last_frame: Instant::now(),
             renderer,
             mouse_buttons: [false, false, false, false, false],
+            font: my_font,
         }
     }
 }
@@ -104,8 +112,10 @@ impl Layer for ImGuiLayer {
         io.display_size = [window_size.0 as f32, window_size.1 as f32];
 
         let ui = self.imgui.frame();
+        let _font = ui.push_font(self.font);
         let mut opened = true;
         ui.show_demo_window(&mut opened);
+        _font.pop(&ui);
         self.renderer.render(ui);
     }
 
