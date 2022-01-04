@@ -42,6 +42,9 @@ impl ImGuiLayer {
             config: None,
         }]);
 
+        imgui.style_mut().window_rounding = 3.0;
+        imgui.style_mut().frame_rounding = 1.0;
+
         unsafe {
             let window_ptr = glfw::ffi::glfwGetCurrentContext() as *mut c_void;
             imgui.set_clipboard_backend(Box::new(GlfwClipboardBackend(window_ptr)));
