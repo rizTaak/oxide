@@ -6,7 +6,7 @@ use std::{
 use glfw::ffi::GLFWwindow;
 use imgui::{BackendFlags, Context, FontId, FontSource, Key};
 
-use super::{app::Application, layer::Layer};
+use super::layer::Layer;
 use crate::{external::gl_renderer::renderer::Renderer, oxide::event::EventType, oxide_info};
 pub struct ImGuiLayer {
     imgui: imgui::Context,
@@ -102,7 +102,7 @@ impl Layer for ImGuiLayer {
         oxide_info!("{}: on_detach", self.name());
     }
 
-    fn on_update(&mut self, _: &dyn Application) {
+    fn on_update(&mut self) {
         let io = self.imgui.io_mut();
 
         let now = Instant::now();

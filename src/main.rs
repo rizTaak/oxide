@@ -6,7 +6,10 @@ mod sandbox;
 
 use std::path::Path;
 
-use crate::oxide::app::Application;
+use crate::{
+    oxide::{glfwwindow::GenericWindow, oxide::Oxide, window::WindowProps},
+    sandbox::app::SandboxApp,
+};
 
 fn main() {
     if Path::new("log4rs.yml").exists() {
@@ -15,9 +18,13 @@ fn main() {
         println!("Skipping log setup as log4rs.yml not found.")
     }
     oxide_info!("Starting Oxide");
-    let mut app = sandbox::app::SandboxApp::new();
-    app.run();
+    let mut oxide = Oxide::<SandboxApp, GenericWindow<SandboxApp>>::new(WindowProps::new(
+        "Oxide Window",
+        1536,
+        864,
+    ));
+    oxide.run();
     oxide_info!("Stopping Oxide");
-    app.close();
+    oxide.close();
     oxide_info!("Oxide Stopped");
 }

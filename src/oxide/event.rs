@@ -1,6 +1,6 @@
-use std::cell::RefCell;
-
 use bitflags::bitflags;
+
+use super::app::Application;
 
 type KeyCode = i32;
 type EventData = f64;
@@ -164,11 +164,6 @@ impl Event {
     }
 }
 
-pub trait EventObserver {
-    fn notify(&mut self, event: &Event);
-    fn can_handle(&self, event: &Event) -> bool;
-}
-
 pub struct EventDispatcher<'a> {
     event: &'a Event,
 }
@@ -178,12 +173,7 @@ impl<'a> EventDispatcher<'a> {
         EventDispatcher { event }
     }
 
-    pub fn dispatch<T: EventObserver>(&self, observer: &RefCell<T>) -> bool {
-        let mut obs = observer.borrow_mut();
-        if obs.can_handle(&self.event) {
-            obs.notify(&self.event);
-            return true;
-        }
-        false
+    pub fn dispatch<A: Application>(&self, app: &mut A) {
+        app.notify(&self.event);
     }
 }

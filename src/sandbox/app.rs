@@ -1,30 +1,16 @@
-use crate::oxide::{
-    app::{Application, OxideApp, OxideAppObserver},
-    imgui::ImGuiLayer,
-    window::{GenericWindow, WindowProps},
-};
+use crate::oxide::{app::Application, imgui::ImGuiLayer, oxideapp::OxideApp};
 
 pub struct SandboxApp {
-    app: OxideApp<GenericWindow<OxideAppObserver>>,
-}
-
-impl SandboxApp {
-    pub fn new() -> SandboxApp {
-        let mut sandbox = SandboxApp {
-            app: OxideApp::<GenericWindow<OxideAppObserver>>::new(WindowProps::new(
-                "Oxide Window",
-                1536,
-                864,
-            )),
-        };
-        sandbox.push_layer(Box::new(ImGuiLayer::new()));
-        sandbox
-    }
+    app: OxideApp,
 }
 
 impl Application for SandboxApp {
-    fn run(&mut self) {
-        self.app.run();
+    fn new() -> SandboxApp {
+        let mut sandbox = SandboxApp {
+            app: OxideApp::new(),
+        };
+        sandbox.push_layer(Box::new(ImGuiLayer::new()));
+        sandbox
     }
 
     fn push_layer(&mut self, layer: Box<dyn crate::oxide::layer::Layer>) {
@@ -37,5 +23,17 @@ impl Application for SandboxApp {
 
     fn close(&mut self) {
         self.app.close();
+    }
+
+    fn is_running(&self) -> bool {
+        self.app.is_running()
+    }
+
+    fn notify(&mut self, event: &crate::oxide::event::Event) {
+        self.app.notify(event);
+    }
+
+    fn layers(&mut self) -> &mut crate::oxide::layer::LayerStack {
+        self.app.layers()
     }
 }
