@@ -1,7 +1,6 @@
-use super::{
+use crate::oxide::{
     app::Application,
-    event::{Event, EventType},
-    layer::{Layer, LayerCollection, LayerStack},
+    layer::{Layer, LayerStack, LayerCollection}, event::{Event, EventType},
 };
 
 pub struct OxideApp {

@@ -7,7 +7,7 @@ mod sandbox;
 use std::path::Path;
 
 use crate::{
-    oxide::{glfwwindow::GenericWindow, oxide::Oxide, window::WindowProps},
+    oxide::{glfw::window::GenericWindow, oxide::Oxide, window::WindowProps},
     sandbox::app::SandboxApp,
 };
 

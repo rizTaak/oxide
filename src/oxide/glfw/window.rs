@@ -1,9 +1,8 @@
-use super::app::Application;
-use super::event::{Event, EventDispatcher};
-use super::window::WindowProps;
 use glfw::{Action, Context, Glfw, SwapInterval, WindowEvent};
 extern crate gl;
-use crate::oxide::window::Window;
+use crate::oxide::app::Application;
+use crate::oxide::event::{Event, EventDispatcher};
+use crate::oxide::window::{Window, WindowProps};
 use crate::oxide_error;
 use std::cell::Cell;
 use std::marker::PhantomData;

@@ -1,4 +1,5 @@
-use crate::oxide::{app::Application, imgui::ImGuiLayer, oxideapp::OxideApp};
+use crate::oxide::{app::Application, default::app::OxideApp, imgui::layer::ImGuiLayer};
+
 
 pub struct SandboxApp {
     app: OxideApp,

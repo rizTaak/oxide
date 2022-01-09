@@ -4,14 +4,14 @@ pub mod event;
 
 pub mod window;
 
-pub mod log;
-
 pub mod layer;
 
 pub mod imgui;
 
 pub mod oxide;
 
-pub mod oxideapp;
+pub mod default;
 
-pub mod glfwwindow;
+pub mod utils;
+
+pub mod glfw;

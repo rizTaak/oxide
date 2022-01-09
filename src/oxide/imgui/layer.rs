@@ -1,13 +1,17 @@
+use glfw::ffi::GLFWwindow;
+use imgui::{BackendFlags, Context, FontId, FontSource, Key};
 use std::{
     ffi::{c_void, CStr},
     time::Instant,
 };
-
-use glfw::ffi::GLFWwindow;
-use imgui::{BackendFlags, Context, FontId, FontSource, Key};
-
-use super::layer::Layer;
-use crate::{external::gl_renderer::renderer::Renderer, oxide::event::EventType, oxide_info};
+use crate::oxide_info;
+use crate::{
+    external::gl_renderer::renderer::Renderer,
+    oxide::{
+        event::{Event, EventType},
+        layer::Layer,
+    },
+};
 pub struct ImGuiLayer {
     imgui: imgui::Context,
     renderer: Renderer,
@@ -37,7 +41,7 @@ impl ImGuiLayer {
         let mut imgui = Context::create();
 
         let my_font = imgui.fonts().add_font(&[FontSource::TtfData {
-            data: include_bytes!("iosevka-medium.ttf"),
+            data: include_bytes!("../resources/iosevka-medium.ttf"),
             size_pixels: 16.0,
             config: None,
         }]);
@@ -122,7 +126,7 @@ impl Layer for ImGuiLayer {
         self.renderer.render(ui);
     }
 
-    fn on_event(&mut self, event: &super::event::Event) -> bool {
+    fn on_event(&mut self, event: &Event) -> bool {
         oxide_info!("{}: {:?}", self.name(), event);
         match event.data {
             EventType::MouseMoved { x_mouse, y_mouse } => {
