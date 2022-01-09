@@ -1,4 +1,5 @@
 use crate::oxide::layer::Layer;
+use crate::oxide::window::WindowProps;
 use crate::oxide_info;
 pub struct ExampleLayer {}
 
@@ -7,7 +8,7 @@ impl Layer for ExampleLayer {
 
     fn on_detach(&mut self) {}
 
-    fn on_update(&mut self) {
+    fn on_update(&mut self, _: &WindowProps) {
         // oxide_info!("ExampleLayer: on_update");
     }
 

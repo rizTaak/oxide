@@ -1,7 +1,9 @@
+use std::collections::VecDeque;
+
 use crate::oxide::{
     app::Application,
     event::{EventType, OxideEvent},
-    layer::{Layer, LayerCollection, LayerStack},
+    layer::{Layer, LayerStack},
     window::WindowProps,
 };
 
@@ -37,12 +39,12 @@ impl Application for OxideApp {
         }
     }
 
-    fn new(props: WindowProps) -> Self {
+    fn new(props: &WindowProps) -> Self {
         OxideApp {
             running: false,
-            props,
+            props: *props, // should be copy trait
             layers: LayerStack {
-                stack: LayerCollection::new(),
+                stack: VecDeque::<Box<dyn Layer>>::new(),
             },
         }
     }
@@ -53,17 +55,5 @@ impl Application for OxideApp {
 
     fn layers(&mut self) -> &mut LayerStack {
         &mut self.layers
-    }
-
-    fn width(&self) -> i32 {
-        self.props.width
-    }
-
-    fn height(&self) -> i32 {
-        self.props.height
-    }
-
-    fn name(&self) -> &'static str {
-        self.props.title
     }
 }

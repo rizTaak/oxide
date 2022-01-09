@@ -1,3 +1,4 @@
+use crate::oxide::window::WindowProps;
 use crate::oxide_info;
 use crate::{
     external::gl_renderer::renderer::Renderer,
@@ -10,7 +11,6 @@ use glfw::ffi::GLFWwindow;
 use imgui::{BackendFlags, Context, FontId, FontSource, Key};
 use std::{
     ffi::{c_void, CStr},
-    os::unix::prelude::MetadataExt,
     time::Instant,
 };
 pub struct ImGuiLayer {
@@ -108,7 +108,7 @@ impl Layer for ImGuiLayer {
         oxide_info!("{}: on_detach", self.name());
     }
 
-    fn on_update(&mut self) {
+    fn on_update(&mut self, props: &WindowProps) {
         let io = self.imgui.io_mut();
 
         let now = Instant::now();
@@ -117,8 +117,7 @@ impl Layer for ImGuiLayer {
         self.last_frame = now;
         io.delta_time = delta_s;
 
-        //let window_size = (1536, 900);
-        io.display_size = [window_size.0 as f32, window_size.1 as f32];
+        io.display_size = [props.width as f32, props.height as f32];
 
         let ui = self.imgui.frame();
         let _font = ui.push_font(self.font);

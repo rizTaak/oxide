@@ -21,7 +21,7 @@ fn error_callback(_: glfw::Error, description: String, error_count: &Cell<usize>
 }
 
 impl<A: Application> Window<A> for GlWindow<A> {
-    fn new(props: WindowProps) -> Self {
+    fn new(props: &WindowProps) -> Self {
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
 
@@ -54,11 +54,11 @@ impl<A: Application> Window<A> for GlWindow<A> {
         window
     }
 
-    fn on_update(&mut self, app: &mut A) {
+    fn on_update(&mut self, app: &mut A, props: &mut WindowProps) {
         self.window.swap_buffers();
         self.glfw.poll_events();
         for (_, event) in glfw::flush_messages(&self.events) {
-            self.handle_window_event(app, &event);
+            self.handle_window_event(app, props, &event);
         }
     }
 
@@ -80,7 +80,7 @@ impl<A: Application> Window<A> for GlWindow<A> {
 }
 
 impl<A: Application> GlWindow<A> {
-    fn handle_window_event(&self, app: &mut A, event: &WindowEvent) {
+    fn handle_window_event(&self, app: &mut A, props: &mut WindowProps, event: &WindowEvent) {
         match event {
             WindowEvent::Close => {
                 let evt = OxideEvent::close();
@@ -127,15 +127,12 @@ impl<A: Application> GlWindow<A> {
                 }
             },
             WindowEvent::Size(width, height) => {
-                // let size = self.window.get_size();
-                // println!("{:?}", size);
-                // let evt = OxideEvent::size(&size.0, &size.1);
-                app.set_width(*width);
-                app.set_height(*height);
+                props.width = *width;
+                props.height = *height;
                 let evt = OxideEvent::size(width, height);
                 let dispatcher = EventDispatcher::new(&evt);
                 dispatcher.dispatch(app);
-            }   
+            }
             _ => {}
         }
     }

@@ -1,19 +1,17 @@
 use std::collections::VecDeque;
 
-use super::{app::Application, event::OxideEvent};
+use super::{event::OxideEvent, window::WindowProps};
 
 pub trait Layer {
     fn on_attach(&mut self);
     fn on_detach(&mut self);
-    fn on_update(&mut self);
+    fn on_update(&mut self, props: &WindowProps);
     fn on_event(&mut self, event: &OxideEvent) -> bool;
     fn name(&self) -> &str;
 }
 
-pub type LayerCollection = VecDeque<Box<dyn Layer>>;
-
 pub struct LayerStack {
-    pub(crate) stack: LayerCollection,
+    pub(crate) stack: VecDeque<Box<dyn Layer>>,
 }
 
 impl LayerStack {
@@ -37,7 +35,7 @@ impl LayerStack {
         self.stack.pop_back().unwrap()
     }
 
-    pub fn layers(&mut self) -> &mut LayerCollection {
+    pub fn layers(&mut self) -> &mut VecDeque<Box<dyn Layer>> {
         &mut self.stack
     }
 }

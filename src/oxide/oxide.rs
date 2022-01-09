@@ -6,13 +6,15 @@ use super::{
 pub struct Oxide<A: Application, W: Window<A>> {
     app: A,
     window: W,
+    props: WindowProps,
 }
 
 impl<A: Application, W: Window<A>> Oxide<A, W> {
     pub fn new(props: WindowProps) -> Oxide<A, W> {
         Oxide::<A, W> {
-            window: W::new(props),
-            app: A::new(props),
+            window: W::new(&props),
+            app: A::new(&props),
+            props: props,
         }
     }
 
@@ -24,9 +26,9 @@ impl<A: Application, W: Window<A>> Oxide<A, W> {
                 gl::Clear(gl::COLOR_BUFFER_BIT);
             }
             for layer in self.app.layers().stack.iter_mut() {
-                layer.on_update();
+                layer.on_update(&self.props);
             }
-            self.window.on_update(&mut self.app);
+            self.window.on_update(&mut self.app, &mut self.props);
         }
     }
 
