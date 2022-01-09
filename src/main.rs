@@ -7,7 +7,7 @@ mod sandbox;
 use std::path::Path;
 
 use crate::{
-    oxide::{glfw::window::GenericWindow, oxide::Oxide, window::WindowProps},
+    oxide::{glfw::window::GlWindow, oxide::Oxide, window::WindowProps},
     sandbox::app::SandboxApp,
 };
 
@@ -18,7 +18,7 @@ fn main() {
         println!("Skipping log setup as log4rs.yml not found.")
     }
     oxide_info!("Starting Oxide");
-    let mut oxide = Oxide::<SandboxApp, GenericWindow<SandboxApp>>::new(WindowProps::new(
+    let mut oxide = Oxide::<SandboxApp, GlWindow<SandboxApp>>::new(WindowProps::new(
         "Oxide Window",
         1536,
         864,

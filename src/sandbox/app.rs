@@ -30,7 +30,7 @@ impl Application for SandboxApp {
         self.app.is_running()
     }
 
-    fn notify(&mut self, event: &crate::oxide::event::Event) {
+    fn notify(&mut self, event: &crate::oxide::event::OxideEvent) {
         self.app.notify(event);
     }
 

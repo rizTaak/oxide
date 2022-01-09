@@ -1,16 +1,17 @@
-use glfw::ffi::GLFWwindow;
-use imgui::{BackendFlags, Context, FontId, FontSource, Key};
-use std::{
-    ffi::{c_void, CStr},
-    time::Instant,
-};
 use crate::oxide_info;
 use crate::{
     external::gl_renderer::renderer::Renderer,
     oxide::{
-        event::{Event, EventType},
+        event::{EventType, OxideEvent},
         layer::Layer,
     },
+};
+use glfw::ffi::GLFWwindow;
+use imgui::{BackendFlags, Context, FontId, FontSource, Key};
+use std::{
+    ffi::{c_void, CStr},
+    os::unix::prelude::MetadataExt,
+    time::Instant,
 };
 pub struct ImGuiLayer {
     imgui: imgui::Context,
@@ -79,6 +80,7 @@ impl ImGuiLayer {
         io.key_map[Key::X as usize] = glfw::Key::X as u32;
         io.key_map[Key::Y as usize] = glfw::Key::Y as u32;
         io.key_map[Key::Z as usize] = glfw::Key::Z as u32;
+
         let renderer = Renderer::new(&mut imgui);
 
         /*
@@ -115,7 +117,7 @@ impl Layer for ImGuiLayer {
         self.last_frame = now;
         io.delta_time = delta_s;
 
-        let window_size = (1536, 864);
+        //let window_size = (1536, 900);
         io.display_size = [window_size.0 as f32, window_size.1 as f32];
 
         let ui = self.imgui.frame();
@@ -126,7 +128,7 @@ impl Layer for ImGuiLayer {
         self.renderer.render(ui);
     }
 
-    fn on_event(&mut self, event: &Event) -> bool {
+    fn on_event(&mut self, event: &OxideEvent) -> bool {
         oxide_info!("{}: {:?}", self.name(), event);
         match event.data {
             EventType::MouseMoved { x_mouse, y_mouse } => {
@@ -168,6 +170,14 @@ impl Layer for ImGuiLayer {
                 if key_code > 0 && key_code < 0x10000 {
                     let io = self.imgui.io_mut();
                     io.add_input_character(key_code as u8 as char);
+                }
+            }
+            EventType::WindowResize { width, height } => {
+                let io = self.imgui.io_mut();
+                io.display_size = [width as f32, height as f32];
+                io.display_framebuffer_scale = [1.0, 1.0];
+                unsafe {
+                    gl::Viewport(0, 0, width, height);
                 }
             }
             EventType::WindowClose => {}

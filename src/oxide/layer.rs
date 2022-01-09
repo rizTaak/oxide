@@ -1,12 +1,12 @@
 use std::collections::VecDeque;
 
-use super::event::Event;
+use super::{app::Application, event::OxideEvent};
 
 pub trait Layer {
     fn on_attach(&mut self);
     fn on_detach(&mut self);
     fn on_update(&mut self);
-    fn on_event(&mut self, event: &Event) -> bool;
+    fn on_event(&mut self, event: &OxideEvent) -> bool;
     fn name(&self) -> &str;
 }
 

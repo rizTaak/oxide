@@ -12,7 +12,7 @@ impl<A: Application, W: Window<A>> Oxide<A, W> {
     pub fn new(props: WindowProps) -> Oxide<A, W> {
         Oxide::<A, W> {
             window: W::new(props),
-            app: A::new(),
+            app: A::new(props),
         }
     }
 

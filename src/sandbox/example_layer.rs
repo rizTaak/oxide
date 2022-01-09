@@ -11,7 +11,7 @@ impl Layer for ExampleLayer {
         // oxide_info!("ExampleLayer: on_update");
     }
 
-    fn on_event(&mut self, event: &crate::oxide::event::Event) -> bool {
+    fn on_event(&mut self, event: &crate::oxide::event::OxideEvent) -> bool {
         oxide_info!("ExampleLayer: {:?}", event);
         false
     }

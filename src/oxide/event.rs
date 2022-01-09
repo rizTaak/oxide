@@ -27,8 +27,8 @@ pub enum EventType {
     None,
     WindowClose,
     WindowResize {
-        width: EventData,
-        height: EventData,
+        width: i32,
+        height: i32,
     },
     WindowFocus,
     WindowLostFocus,
@@ -62,16 +62,16 @@ pub enum EventType {
 }
 
 #[derive(Debug)]
-pub struct Event {
+pub struct OxideEvent {
     pub catogories: EventCategory,
     pub name: &'static str,
     pub handled: bool,
     pub data: EventType,
 }
 
-impl Event {
-    pub fn none() -> Event {
-        Event {
+impl OxideEvent {
+    pub fn none() -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::NONE,
             name: "None",
             handled: false,
@@ -79,8 +79,8 @@ impl Event {
         }
     }
 
-    pub fn key_pressed(key_code: KeyCode) -> Event {
-        Event {
+    pub fn key_pressed(key_code: KeyCode) -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_KEYBOARD
                 | EventCategory::EVENT_CATEGORY_INPUT,
             name: "KeyPressed",
@@ -89,8 +89,8 @@ impl Event {
         }
     }
 
-    pub fn key_release(key_code: KeyCode) -> Event {
-        Event {
+    pub fn key_release(key_code: KeyCode) -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_KEYBOARD
                 | EventCategory::EVENT_CATEGORY_INPUT,
             name: "KeyReleased",
@@ -99,8 +99,8 @@ impl Event {
         }
     }
 
-    pub fn key_typed(key_code: KeyCode) -> Event {
-        Event {
+    pub fn key_typed(key_code: KeyCode) -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_KEYBOARD
                 | EventCategory::EVENT_CATEGORY_INPUT,
             name: "KeyTyped",
@@ -109,8 +109,8 @@ impl Event {
         }
     }
 
-    pub fn close() -> Event {
-        Event {
+    pub fn close() -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_APPLICATION,
             name: "WindowClose",
             handled: false,
@@ -118,8 +118,8 @@ impl Event {
         }
     }
 
-    pub fn mouse_move(x: f64, y: f64) -> Event {
-        Event {
+    pub fn mouse_move(x: f64, y: f64) -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_MOUSE | EventCategory::EVENT_CATEGORY_INPUT,
             name: "MouseMove",
             handled: false,
@@ -130,8 +130,8 @@ impl Event {
         }
     }
 
-    pub fn mouse_button_pressed(x: i32) -> Event {
-        Event {
+    pub fn mouse_button_pressed(x: i32) -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON
                 | EventCategory::EVENT_CATEGORY_INPUT,
             name: "MouseButtonPressed",
@@ -140,8 +140,8 @@ impl Event {
         }
     }
 
-    pub fn mouse_button_released(x: i32) -> Event {
-        Event {
+    pub fn mouse_button_released(x: i32) -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON
                 | EventCategory::EVENT_CATEGORY_INPUT,
             name: "MouseButtonReleased",
@@ -150,8 +150,8 @@ impl Event {
         }
     }
 
-    pub fn mouse_scrolled(x: f64, y: f64) -> Event {
-        Event {
+    pub fn mouse_scrolled(x: f64, y: f64) -> OxideEvent {
+        OxideEvent {
             catogories: EventCategory::EVENT_CATEGORY_MOUSE_BUTTON
                 | EventCategory::EVENT_CATEGORY_INPUT,
             name: "MouseScroll",
@@ -162,14 +162,26 @@ impl Event {
             },
         }
     }
+
+    pub fn size(width: &i32, height: &i32) -> OxideEvent {
+        OxideEvent {
+            catogories: EventCategory::EVENT_CATEGORY_APPLICATION,
+            name: "WindowResize",
+            handled: false,
+            data: EventType::WindowResize {
+                width: *width,
+                height: *height,
+            },
+        }
+    }
 }
 
 pub struct EventDispatcher<'a> {
-    event: &'a Event,
+    event: &'a OxideEvent,
 }
 
 impl<'a> EventDispatcher<'a> {
-    pub fn new(event: &'a Event) -> EventDispatcher<'a> {
+    pub fn new(event: &'a OxideEvent) -> EventDispatcher<'a> {
         EventDispatcher { event }
     }
 
