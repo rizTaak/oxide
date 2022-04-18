@@ -1,4 +1,4 @@
-use glfw::{Action, Context, Glfw, SwapInterval, WindowEvent};
+use glfw::{Action, Context, Glfw, SwapInterval, WindowEvent, OpenGlProfileHint};
 extern crate gl;
 use crate::oxide::app::Application;
 use crate::oxide::event::{EventDispatcher, OxideEvent};
@@ -24,7 +24,9 @@ impl<A: Application> Window<A> for GlWindow<A> {
     fn new(props: &WindowProps) -> Self {
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
         glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
-
+        glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
+        glfw.window_hint(glfw::WindowHint::OpenGlProfile(OpenGlProfileHint::Core));
+        
         let (mut window, events) = glfw
             .create_window(
                 props.width as u32,
